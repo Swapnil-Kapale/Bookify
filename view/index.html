@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bookify</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f6f6f6;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .container {
+            max-width: 800px;
+            width: 100%;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            box-sizing: border-box;
+        }
+
+        h1 {
+            margin-top: 0;
+            color: #444;
+        }
+
+        form {
+            display: flex;
+            margin-bottom: 10px;
+        }
+
+        form input[type="text"] {
+            flex: 1;
+            padding: 8px;
+            margin-right: 10px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            font-size: 16px;
+        }
+
+        button {
+            padding: 8px 16px;
+            border: none;
+            border-radius: 4px;
+            background-color: #d3a6a6;
+            color: #fff;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background-color 0.3s ease;
+        }
+
+        form button:hover {
+            background-color: #b38585;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 5px;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>Bookify</h1>
+
+    <!-- div for managing users -->
+    <div id="userSection">
+        <!-- form to add new user -->
+        <form id="addUserForm">
+            <input type="text" id="userNameInput" placeholder="Enter user name">
+            <button type="submit">Add User</button>
+        </form>
+        <h1>Users</h1>
+        <ul id="userList">
+        </ul>
+    </div>
+
+    <!-- div for managing books -->
+    <div id="bookSection">
+        <!-- form to add new book -->
+        <form id="addBookForm">
+            <input type="text" id="bookTitleInput" placeholder="Enter book title">
+            <input type="text" id="bookAuthorInput" placeholder="Enter book author">
+            <button type="submit">Add Book</button>
+        </form>
+        <h1>Books</h1>
+        <ul id="bookList">
+        </ul>
+    </div>
+
+</div>
+
+<script>
+
+    // function to fetch users and books
+    function fetchUsersAndBooks() {
+        // fetch users
+        fetch('http://localhost:8080/api/users')
+            .then(response => response.json())
+            .then(users => {
+                // clear user list
+                const userList = document.getElementById('userList');
+                userList.innerHTML = '';
+
+                // loop through users and add to user list also add delete and edit buttons
+                users.forEach(user => {
+                    const li = document.createElement('li');
+                    li.textContent = user.name;
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    // color red
+                    deleteButton.style.backgroundColor = 'red';
+                    deleteButton.addEventListener('click', () => {
+                        fetch(`http://localhost:8080/api/users/${user.id}`, {
+                            method: 'DELETE'
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                // refresh user list
+                                fetchUsersAndBooks();
+                            });
+                    });
+                    li.appendChild(deleteButton);
+
+                    const editButton = document.createElement('button');
+                    editButton.textContent = 'Edit';
+                    editButton.addEventListener('click', () => {
+                        const newName = prompt('Enter new name');
+                        fetch(`http://localhost:8080/api/users/${user.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ name: newName })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                // refresh user list
+                                fetchUsersAndBooks();
+                            });
+                    });
+
+                    // add margin between buttons
+                    deleteButton.style.margin = '10px';
+
+
+                    li.appendChild(editButton);
+                    userList.appendChild(li);
+                });
+            });
+
+        // fetch books
+        fetch('http://localhost:8080/api/books')
+            .then(response => response.json())
+            .then(books => {
+                // clear book list
+                const bookList = document.getElementById('bookList');
+                bookList.innerHTML = '';
+
+                // loop through books and add to book list
+                books.forEach(book => {
+                    const li = document.createElement('li');
+                    li.textContent = `${book.title} by ${book.author}`;
+
+                    // add delete button and edit button
+                    const deleteButton = document.createElement('button');
+                    deleteButton.textContent = 'Delete';
+                    // color red
+                    deleteButton.style.backgroundColor = 'red';
+                    deleteButton.addEventListener('click', () => {
+                        fetch(`http://localhost:8080/api/books/${book.id}`, {
+                            method: 'DELETE'
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                // refresh book list
+                                fetchUsersAndBooks();
+                            });
+                    });
+                    li.appendChild(deleteButton);
+
+                    const editButton = document.createElement('button');
+                    editButton.textContent = 'Edit';
+                    editButton.addEventListener('click', () => {
+                        const newTitle = prompt('Enter new title');
+                        const newAuthor = prompt('Enter new author');
+                        fetch(`http://localhost:8080/api/books/${book.id}`, {
+                            method: 'PUT',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ title: newTitle, author: newAuthor })
+                        })
+                            .then(response => response.json())
+                            .then(data => {
+                                // refresh book list
+                                fetchUsersAndBooks();
+                            });
+                    });
+
+                    // add margin between buttons
+                    deleteButton.style.margin = '10px';
+
+                    li.appendChild(editButton);
+
+
+                    bookList.appendChild(li);
+                });
+            });
+    }
+
+    // function to handle adding a new user
+    function handleAddUser(event) {
+        event.preventDefault();
+        const userNameInput = document.getElementById('userNameInput');
+        const userName = userNameInput.value;
+        // add user via fetch
+        fetch('http://localhost:8080/api/users', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ name: userName })
+        })
+            .then(response => response.json())
+            .then(data => {
+                // refresh user list
+                fetchUsersAndBooks();
+                // clear input field
+                userNameInput.value = '';
+            });
+    }
+
+    // function to handle adding a new book
+    function handleAddBook(event) {
+        event.preventDefault();
+        const bookTitleInput = document.getElementById('bookTitleInput');
+        const bookAuthorInput = document.getElementById('bookAuthorInput');
+        const bookTitle = bookTitleInput.value;
+        const bookAuthor = bookAuthorInput.value;
+        // add book via fetch
+        fetch('http://localhost:8080/api/books', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ title: bookTitle, author: bookAuthor })
+        })
+            .then(response => response.json())
+            .then(data => {
+                // refresh book list
+                fetchUsersAndBooks();
+                // clear input fields
+                bookTitleInput.value = '';
+                bookAuthorInput.value = '';
+            });
+    }
+
+    // add event listeners
+    document.getElementById('addUserForm').addEventListener('submit', handleAddUser);
+    document.getElementById('addBookForm').addEventListener('submit', handleAddBook);
+
+    // fetch users and books on page load
+    fetchUsersAndBooks()
+
+</script>
+
+</body>
+</html>
