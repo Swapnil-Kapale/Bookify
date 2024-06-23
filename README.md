@@ -19,4 +19,6 @@ This is a Library Management System implemented using Spring Boot, Hibernate, an
   - JavaScript
  
 - **UI Screen Shot:**
-  - !(UI_SS/Screenshot 2024-04-07 203040.png)
+
+![Screenshot 1](/UI_SS/ss.png)
+
