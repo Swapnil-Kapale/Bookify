@@ -17,3 +17,6 @@ This is a Library Management System implemented using Spring Boot, Hibernate, an
   - HTML
   - CSS
   - JavaScript
+ 
+- **UI Screen Shot:**
+- !(https://github.com/Swapnil-Kapale/Bookify/blob/main/UI_SS/Screenshot%202024-04-07%20203040.png)
